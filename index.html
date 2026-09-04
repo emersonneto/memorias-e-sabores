@@ -399,7 +399,6 @@
   <div class="user-badge" style="justify-content:center; margin-top:14px;">
     <span id="userEmail"></span>
     <button class="signout-link" id="signOutBtn">Sair</button>
-    <button class="signout-link" id="cleanDuplicatesBtn" style="color:var(--sage);">Limpar duplicadas</button>
   </div>
 </header>
 
@@ -894,57 +893,6 @@ document.getElementById('googleSignIn').addEventListener('click', async () => {
 });
 
 document.getElementById('signOutBtn').addEventListener('click', () => signOut(auth));
-
-document.getElementById('cleanDuplicatesBtn').addEventListener('click', async () => {
-  const groups = {};
-  recipes.forEach(r => {
-    const key = (r.nome || '').trim().toLowerCase();
-    if (!key) return;
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(r);
-  });
-
-  const toDelete = [];
-  Object.values(groups).forEach(group => {
-    if (group.length <= 1) return;
-    // Keep the copy that has audio, or the oldest one; delete the rest.
-    const sorted = group.slice().sort((a, b) => {
-      const aHasAudio = getRecipeAudio(a) ? 1 : 0;
-      const bHasAudio = getRecipeAudio(b) ? 1 : 0;
-      if (aHasAudio !== bHasAudio) return bHasAudio - aHasAudio;
-      const aTime = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-      const bTime = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-      return aTime - bTime;
-    });
-    toDelete.push(...sorted.slice(1));
-  });
-
-  if (toDelete.length === 0){
-    alert('Nenhuma receita duplicada encontrada.');
-    return;
-  }
-
-  const names = [...new Set(toDelete.map(r => r.nome))].join(', ');
-  if (!confirm(`Encontrei ${toDelete.length} receita(s) duplicada(s) (${names}). Remover as cópias extras, mantendo uma de cada?`)){
-    return;
-  }
-
-  const btn = document.getElementById('cleanDuplicatesBtn');
-  btn.disabled = true;
-  btn.textContent = 'Limpando...';
-  try {
-    for (const r of toDelete){
-      await deleteDoc(doc(db, 'recipes', r.id));
-    }
-    alert(`Pronto! ${toDelete.length} receita(s) duplicada(s) removida(s).`);
-  } catch(err){
-    console.error(err);
-    alert('Não foi possível remover todas as duplicadas. Tente de novo.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Limpar duplicadas';
-  }
-});
 
 function showLogin(message){
   syncStarted = false;
