@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memórias e Sabores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1E6D2;
+    --paper-card:#FBF4E6;
+    --ink:#3B2A20;
+    --ink-soft:#6B5744;
+    --wine:#9C3B34;
+    --wine-dark:#7C2E28;
+    --sage:#6E7F5E;
+    --gold:#C69A4C;
+    --shadow:rgba(59,42,32,0.28);
+    --line:rgba(59,42,32,0.16);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.35), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(120,90,50,0.06), transparent 50%);
+    color:var(--ink);
+    font-family:'Source Serif 4', serif;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  header.top{
+    padding:56px 24px 36px;
+    text-align:center;
+    position:relative;
+  }
+  header.top::after{
+    content:"";
+    display:block;
+    width:120px;
+    height:2px;
+    margin:22px auto 0;
+    background:repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 14px);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--wine);
+    margin:0 0 10px;
+  }
+  header.top h1{
+    font-size:clamp(34px, 6vw, 56px);
+    margin:0;
+    font-style:italic;
+    font-weight:500;
+  }
+  header.top p{
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:14px auto 0;
+    font-size:16px;
+    line-height:1.6;
+  }
+
+  .status-banner{
+    max-width:1040px; margin:0 auto; padding:0 24px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    text-align:center; color:var(--wine-dark);
+  }
+  .status-banner.hidden{ display:none; }
+
+  .toolbar{
+    max-width:1040px;
+    margin:0 auto;
+    padding:0 24px 20px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .search-wrap{
+    flex:1 1 240px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:12px 16px 12px 40px;
+    border-radius:3px;
+    border:1px solid var(--line);
+    background:var(--paper-card);
+    font-family:'Source Serif 4', serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .search-wrap input:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .search-wrap svg{
+    position:absolute; left:13px; top:50%; transform:translateY(-50%);
+    opacity:0.5; width:16px; height:16px;
+  }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:7px 13px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+  .chip.active{ background:var(--wine); border-color:var(--wine); color:#fff; }
+
+  .add-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.04em;
+    background:var(--wine);
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:3px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 3px 0 var(--wine-dark);
+    transition:transform .12s ease;
+    white-space:nowrap;
+  }
+  .add-btn:hover{ transform:translateY(-1px); }
+  .add-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 var(--wine-dark); }
+  .add-btn:disabled{ opacity:0.6; pointer-events:none; }
+
+  /* ---------- Login screen ---------- */
+  .login-screen{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:44px 36px;
+    max-width:400px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.35);
+  }
+  .login-card h2{
+    font-style:italic; font-size:26px; margin:8px 0 12px;
+  }
+  .login-card p{
+    color:var(--ink-soft); font-size:14.5px; line-height:1.6; margin:0 0 26px;
+  }
+  .google-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    width:100%;
+    background:#fff; color:var(--ink);
+    border:1px solid var(--line);
+    padding:12px 18px;
+    border-radius:3px;
+    font-family:'Source Serif 4', serif; font-size:15px;
+    cursor:pointer;
+  }
+  .google-btn:hover{ background:#faf5ec; }
+
+  .user-badge{
+    display:flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .user-badge .signout-link{
+    background:none; border:none; color:var(--wine);
+    text-decoration:underline; cursor:pointer; padding:0;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+  }
+
+  main{ max-width:1040px; margin:0 auto; padding:10px 24px 80px; }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:28px;
+    margin-top:20px;
+  }
+
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:22px 20px 20px;
+    position:relative;
+    cursor:pointer;
+    box-shadow:0 1px 0 var(--line), 0 8px 16px -12px var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+    clip-path:polygon(
+      0% 3px, 2% 0%, 5% 3px, 9% 0%, 13% 3px, 17% 0%, 21% 3px, 25% 0%, 29% 3px, 33% 0%,
+      37% 3px, 41% 0%, 45% 3px, 49% 0%, 53% 3px, 57% 0%, 61% 3px, 65% 0%, 69% 3px, 73% 0%,
+      77% 3px, 81% 0%, 85% 3px, 89% 0%, 93% 3px, 97% 0%, 100% 3px,
+      100% 100%, 0% 100%
+    );
+  }
+  .card:hover{ transform:translateY(-3px); box-shadow:0 1px 0 var(--line), 0 16px 26px -14px var(--shadow); }
+  .card .pin{
+    position:absolute; top:14px; right:16px; width:9px; height:9px;
+    background:var(--gold); border-radius:50%;
+    box-shadow:0 1px 2px rgba(0,0,0,0.3);
+  }
+  .card .audio-badge{
+    position:absolute; top:12px; left:12px;
+    width:24px; height:24px; border-radius:50%;
+    background:var(--sage); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card .cat{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--sage);
+    margin:6px 0 8px;
+  }
+  .card h3{
+    margin:0 0 6px;
+    font-size:21px;
+    line-height:1.25;
+    padding-right:14px;
+  }
+  .card .from{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin:0 0 14px;
+  }
+  .card .meta{
+    display:flex; gap:14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+
+  .empty{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--ink-soft);
+  }
+  .empty h2{ font-style:italic; font-size:26px; margin-bottom:10px; color:var(--ink); }
+  .empty svg{ opacity:0.35; margin-bottom:18px; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(30,20,12,0.5);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:40px 16px; overflow-y:auto; z-index:50;
+    animation:fadeIn .15s ease;
+  }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  .modal{
+    background:var(--paper-card);
+    max-width:640px; width:100%;
+    border-radius:4px;
+    padding:36px 34px 34px;
+    position:relative;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.5);
+  }
+  .modal-close{
+    position:absolute; top:18px; right:20px;
+    background:none; border:none; cursor:pointer;
+    font-size:22px; color:var(--ink-soft); line-height:1;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .modal label{
+    display:block; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--sage); margin:18px 0 6px;
+  }
+  .modal label:first-of-type{ margin-top:0; }
+  .modal input[type=text], .modal input[type=number], .modal select, .modal textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line);
+    border-radius:3px; background:#fff; font-family:'Source Serif 4', serif;
+    font-size:15px; color:var(--ink); resize:vertical;
+  }
+  .modal input[type=file]{
+    width:100%; padding:9px 10px; border:1px dashed var(--line);
+    border-radius:3px; background:#fff; font-family:'Source Serif 4', serif; font-size:13.5px;
+  }
+  .modal textarea{ font-family:'IBM Plex Mono', monospace; font-size:13.5px; line-height:1.6; min-height:90px; }
+  .modal input:focus, .modal select:focus, .modal textarea:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .hint{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:28px; }
+  .btn-secondary{
+    background:transparent; border:1px solid var(--line); color:var(--ink-soft);
+    padding:11px 18px; border-radius:3px; cursor:pointer; font-family:'Source Serif 4', serif; font-size:14px;
+  }
+  .btn-primary{
+    background:var(--wine); color:#fff; border:none; padding:11px 20px;
+    border-radius:3px; cursor:pointer; font-family:'Source Serif 4', serif; font-size:14px;
+    box-shadow:0 3px 0 var(--wine-dark);
+  }
+  .btn-primary:active{ transform:translateY(2px); box-shadow:0 1px 0 var(--wine-dark); }
+  .btn-primary:disabled{ opacity:0.65; pointer-events:none; }
+
+  .detail-header{ margin-bottom:6px; }
+  .detail-cat{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--sage); }
+  .detail-title{ font-size:30px; font-style:italic; font-weight:500; margin:6px 0 4px; }
+  .detail-from{ color:var(--ink-soft); font-size:14.5px; margin-bottom:18px; }
+  .detail-meta{ display:flex; gap:20px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); border-top:1px dashed var(--line); border-bottom:1px dashed var(--line); padding:12px 0; margin-bottom:20px; }
+  .detail-section h4{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--wine); margin:22px 0 10px; }
+  .detail-section ul, .detail-section ol{ margin:0; padding-left:20px; }
+  .detail-section li{ margin-bottom:8px; line-height:1.55; }
+  .detail-section ul{ font-family:'IBM Plex Mono', monospace; font-size:13.5px; list-style:none; padding-left:0; }
+  .detail-section ul li::before{ content:"— "; color:var(--gold); }
+  .story{
+    background:rgba(198,154,76,0.12);
+    border-left:3px solid var(--gold);
+    padding:14px 16px;
+    font-style:italic;
+    color:var(--ink-soft);
+    line-height:1.7;
+    font-size:15px;
+    margin-top:22px;
+    border-radius:0 3px 3px 0;
+  }
+  .detail-actions{
+    display:flex; align-items:center; gap:18px;
+    margin-top:28px; padding-top:18px;
+    border-top:1px dashed var(--line);
+  }
+  .edit-link{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    color:var(--sage); background:none; border:none; cursor:pointer;
+    text-decoration:underline; padding:0;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .remove-link{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    color:#a35a54; background:none; border:none; cursor:pointer;
+    text-decoration:underline; padding:0;
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .save-note{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+    text-align:center; opacity:0.65; margin-top:6px;
+  }
+
+  .detail-audio{
+    background:rgba(110,127,94,0.12);
+    border:1px solid rgba(110,127,94,0.35);
+    border-radius:6px;
+    padding:14px 16px;
+    margin-bottom:20px;
+  }
+  .detail-audio p{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--sage); margin:0 0 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .detail-audio audio{ width:100%; }
+
+  @media (max-width:520px){
+    .row2{ grid-template-columns:1fr; }
+    .modal{ padding:28px 20px 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <p class="eyebrow">acesso da família</p>
+    <h2>Memórias e Sabores</h2>
+    <p id="loginMessage">Entre com sua conta Google para ver e guardar as receitas da família.</p>
+    <button class="google-btn" id="googleSignIn">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Entrar com Google
+    </button>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+<header class="top">
+  <p class="eyebrow">preservado com carinho</p>
+  <h1>Memórias e Sabores</h1>
+  <p>Cada receita aqui carrega uma história — de mãos que ensinaram a outras mãos. Guarde as suas antes que se percam no tempo.</p>
+  <div class="user-badge" style="justify-content:center; margin-top:14px;">
+    <span id="userEmail"></span>
+    <button class="signout-link" id="signOutBtn">Sair</button>
+  </div>
+</header>
+
+<p class="status-banner hidden" id="statusBanner"></p>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search" type="text" placeholder="Procurar por nome ou por quem ensinou...">
+  </div>
+  <div class="chips" id="chips"></div>
+  <button class="add-btn" id="openAdd">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nova Receita
+  </button>
+</div>
+
+<main>
+  <div id="gridArea"></div>
+  <p class="save-note" id="saveNote"></p>
+</main>
+
+<div class="overlay" id="addOverlay" style="display:none;">
+  <div class="modal">
+    <button class="modal-close" id="closeAdd" aria-label="Fechar">&times;</button>
+    <h2 style="font-style:italic; margin:0 0 4px;" id="formTitle">Guardar uma nova receita</h2>
+    <p style="color:var(--ink-soft); font-size:14px; margin:0 0 4px;" id="formSubtitle">Preencha o quanto souber. O importante é registrar antes que se esqueça.</p>
+
+    <form id="recipeForm">
+      <label for="f-nome">Nome da receita</label>
+      <input type="text" id="f-nome" required placeholder="Ex: Bolo de fubá da Vó Amélia">
+
+      <div class="row2">
+        <div>
+          <label for="f-de">Quem passou a receita</label>
+          <input type="text" id="f-de" placeholder="Ex: Vó Amélia">
+        </div>
+        <div>
+          <label for="f-epoca">Época ou geração</label>
+          <input type="text" id="f-epoca" placeholder="Ex: receita dos anos 1960">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label for="f-categoria">Categoria</label>
+          <select id="f-categoria">
+            <option>Doces e sobremesas</option>
+            <option>Pratos principais</option>
+            <option>Pães e massas</option>
+            <option>Sopas e caldos</option>
+            <option>Bebidas</option>
+            <option>Remédios caseiros</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-tempo">Tempo de preparo</label>
+          <input type="text" id="f-tempo" placeholder="Ex: 40 min">
+        </div>
+      </div>
+
+      <label for="f-porcoes">Rendimento / porções</label>
+      <input type="text" id="f-porcoes" placeholder="Ex: 8 pedaços">
+
+      <label for="f-ingredientes">Ingredientes</label>
+      <textarea id="f-ingredientes" placeholder="Um por linha, ex:&#10;3 ovos&#10;2 xícaras de fubá&#10;1 xícara de açúcar"></textarea>
+      <p class="hint">Um ingrediente por linha.</p>
+
+      <label for="f-modo">Modo de preparo</label>
+      <textarea id="f-modo" placeholder="Um passo por linha, ex:&#10;Bata os ovos com o açúcar&#10;Misture o fubá aos poucos"></textarea>
+      <p class="hint">Um passo por linha.</p>
+
+      <label for="f-historia">Uma memória ou história (opcional)</label>
+      <textarea id="f-historia" placeholder="Ex: Minha avó fazia esse bolo todo domingo de manhã, e a casa toda cheirava a fubá quentinho..."></textarea>
+
+      <label for="f-audio">Áudio (opcional)</label>
+      <input type="file" id="f-audio" accept="audio/*">
+      <p class="hint" id="audioHint">Grave ou envie um arquivo de áudio para acompanhar a receita.</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="cancelAdd">Cancelar</button>
+        <button type="submit" class="btn-primary" id="formSubmitBtn">Guardar receita</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay" id="detailOverlay" style="display:none;">
+  <div class="modal" id="detailContent"></div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAash4AN7b1g5oP01HlbIUu2JQd_Pbq7TI",
+  authDomain: "memorias-e-sabores.firebaseapp.com",
+  projectId: "memorias-e-sabores",
+  storageBucket: "memorias-e-sabores.firebasestorage.app",
+  messagingSenderId: "1054805160170",
+  appId: "1:1054805160170:web:b14099fbbc87961522e793"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+const recipesCol = collection(db, 'recipes');
+let syncStarted = false;
+
+let recipes = [];
+let activeCategory = 'Todas';
+let editingId = null;
+let editingAudioUrl = null;
+
+const catColors = {
+  'Doces e sobremesas': '#9C3B34',
+  'Pratos principais': '#6E7F5E',
+  'Pães e massas': '#C69A4C',
+  'Sopas e caldos': '#6E7F5E',
+  'Bebidas': '#9C3B34',
+  'Remédios caseiros': '#6E7F5E',
+  'Outros': '#6B5744'
+};
+
+function esc(str){
+  const d = document.createElement('div');
+  d.innerText = str || '';
+  return d.innerHTML;
+}
+
+function linesToArray(text){
+  return (text || '').split('\n').map(s => s.trim()).filter(Boolean);
+}
+
+function flattenIngredients(sections){
+  const out = [];
+  Object.entries(sections).forEach(([label, items]) => {
+    if (label !== 'Lista') out.push(label + ':');
+    items.forEach(i => out.push(i));
+  });
+  return out;
+}
+
+function setStatus(msg, isError){
+  const el = document.getElementById('statusBanner');
+  if (!msg){ el.classList.add('hidden'); el.textContent = ''; return; }
+  el.textContent = msg;
+  el.style.color = isError ? '#a35a54' : 'var(--wine-dark)';
+  el.classList.remove('hidden');
+}
+
+/* ---------- Seed data used only for the one-time migration ---------- */
+const SEED_TEXT_RECIPES = [
+  { id:'seed-1', nome:'Torta de Banana da Vó Rosinha', de:'Vó Rosinha', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Base (massa seca)': ['14 colheres de farinha de trigo','12 colheres de açúcar','1 colher (sopa) de fermento em pó'],
+      'Recheio': ['Bananas maduras fatiadas','Canela em pó (a gosto, para polvilhar)'],
+      'Montagem': ['Manteiga em cubinhos (quantidade suficiente para cobrir a torta)'],
+      'Cobertura': ['3 claras em neve','6 colheres de açúcar','Açúcar extra para polvilhar (o segredo da crocância)']
+    }),
+    modo: ['Misture a farinha, o açúcar e o fermento em um recipiente.','Em uma forma untada, faça uma camada de bananas fatiadas.','Polvilhe canela em pó generosamente sobre as bananas.','Cubra com parte da mistura seca.','Repita as camadas (banana + canela + mistura seca) até finalizar os ingredientes.','Distribua cubinhos de manteiga por toda a superfície para dar liga à massa.','Asse em forno preaquecido a 180 °C até dourar e a massa estar firme.','Bata as claras em neve até ficarem bem firmes, adicione o açúcar aos poucos formando um merengue.','Espalhe o merengue sobre a torta. O segredo: polvilhe um pouco de açúcar refinado por toda a superfície do merengue antes de voltar ao forno.','Leve novamente ao forno, de preferência em temperatura baixa (150°C-160°C), apenas para dourar e secar a cobertura, criando a casquinha crocante.'],
+    historia:"Dica de ouro: polvilhar açúcar por cima do merengue e assar em fogo baixo faz com que ele cristalize, criando aquela cobertura 'quebradiça' que a Vó Rosinha fazia." },
+  { id:'seed-4', nome:'Bolo de Laranja com Calda', de:'Vó Elza (Memória)', epoca:'', categoria:'Doces e sobremesas', tempo:'35 min no forno', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Massa': ['3 ovos','50 ml de óleo','¾ xícara de açúcar','150 ml de suco de laranja natural','1½ xícara de farinha de trigo','1 colher (sopa) de fermento em pó'],
+      'Calda (umedecer)': ['½ xícara de suco de laranja','½ colher (sopa) de açúcar'],
+      'Cobertura (açucarada)': ['¾ xícara de açúcar de confeiteiro','2 colheres (sopa) de suco de laranja','Raspas de laranja']
+    }),
+    modo: ['Bata no liquidificador os ovos, açúcar, óleo e suco.','Misture com a farinha peneirada e adicione o fermento.','Asse a 180 °C por 35 minutos.','Fure o bolo morno e regue com a calda de suco e açúcar.','Para a cobertura: aqueça açúcar de confeiteiro e suco em banho-maria até engrossar levemente e despeje sobre o bolo.'],
+    historia:'Lembra o bolo feito pela Vó Elza. A cobertura açucarada com raspas dá o toque final.' },
+  { id:'seed-5', nome:'Bolo Negra Maluca', de:'Mãe', epoca:'', categoria:'Doces e sobremesas', tempo:'35 a 40 min no forno', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Massa': ['3 ovos','2 xícaras de farinha de trigo','2 xícaras de chocolate em pó','1½ xícara de açúcar','1 xícara de óleo','1 xícara de água fervente','1 colher (sopa) de fermento em pó'],
+      'Calda de chocolate': ['2 colheres (sopa) de manteiga','2 colheres (sopa) de açúcar','2 colheres (sopa) de chocolate em pó','2 colheres (sopa) de leite']
+    }),
+    modo: ['Misture ovos, açúcar, óleo e chocolate.','Adicione farinha e depois a água fervente.','Por fim, misture o fermento e asse a 180 °C por 35 a 40 minutos.','Para a calda: em uma panela, misture todos os ingredientes e leve ao fogo até ferver levemente.','Despeje a calda ainda quente sobre o bolo para um resultado brilhante e úmido.'],
+    historia:'Receita que a mãe sempre fazia na nossa infância. A água quente intensifica o chocolate.' },
+  { id:'seed-6', nome:'Torta Mesclada', de:'Mãe', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Massa': ['5 ovos (separados)','2 xícaras de açúcar','2 xícaras de farinha','1 xícara de leite morno','Baunilha','1 colher (sopa) de fermento'],
+      'Recheio': ['1 litro de leite','1 lata de leite condensado','1 lata de creme de leite','2 colheres (sopa) de maizena','3 gemas','Baunilha'],
+      'Cobertura': ['2 claras','2 xícaras de açúcar','1 xícara de água']
+    }),
+    modo: ['Massa: bata claras em neve. Misture gemas, açúcar, leite, baunilha e farinha. Incorpore as claras e fermento.','Recheio: cozinhe leite, maizena, leite condensado e gemas até engrossar. Fora do fogo, junte o creme de leite.','Cobertura: faça uma calda com açúcar e água e despeje sobre as claras batidas em neve.','Montagem: corte o bolo, recheie e cubra com o merengue.'],
+    historia:'Receita da mãe. Para ficar mais úmido, regue a massa com leite antes de rechear.' },
+  { id:'seed-7', nome:'Torta de Limão', de:'Favoritos', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Massa': ['3 gemas','125 g de margarina','2 colheres (sopa) de açúcar','2 xícaras de farinha','1 colher (sopa) de fermento','2 colheres (sopa) de água'],
+      'Recheio': ['2 latas de leite condensado','½ xícara de suco de limão'],
+      'Cobertura': ['3 claras em neve','6 a 9 colheres de açúcar']
+    }),
+    modo: ['Massa: misture tudo, forre a forma, fure com garfo e asse até dourar.','Recheio: apenas misture o leite condensado com o limão até firmar.','Cobertura: bata claras em neve com açúcar.','Montagem: recheie a massa fria, cubra com merengue e leve ao forno só para dourar.'],
+    historia:'O limão reage com o leite condensado e engrossa sem fogo!' },
+  { id:'seed-8', nome:'Pavê Tradicional', de:'Mãe', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Creme': ['1 lata de leite condensado','1 lata de leite','3 gemas','1 colher (sopa) de amido de milho'],
+      'Montagem': ['Bolacha champanhe ou maisena'],
+      'Cobertura': ['3 claras em neve','3 colheres de açúcar','1 lata de creme de leite']
+    }),
+    modo: ['Cozinhe o creme até engrossar. Deixe esfriar.','Misture as claras em neve (com açúcar) ao creme de leite.','Monte em camadas: creme, bolacha, creme. Finalize com a cobertura.','Gele por pelo menos 4 horas.'],
+    historia:'Outra favorita da mãe. O tempo de geladeira é fundamental para a estrutura.' },
+  { id:'seed-9', nome:'Mousse de Chocolate Intensa', de:'Vídeo Especial', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Base': ['300g de chocolate 70% cacau','150g de manteiga sem sal','50ml de café expresso','1 colher (sopa) de essência ou pasta de baunilha'],
+      'Ovos & açúcar': ['6 ovos (claras e gemas separadas)','100g de açúcar (dividido: 50g para gemas e 50g para claras)']
+    }),
+    modo: ['Derreta o chocolate com a manteiga em banho-maria ou micro-ondas até obter um creme liso.','Adicione o café expresso e a baunilha à mistura de chocolate e reserve para amornar.','Na batedeira, bata as gemas com 50g de açúcar até que fiquem bem claras e volumosas.','Incorpore delicadamente a mistura de chocolate amornada às gemas batidas.','Bata as claras em neve. Quando começarem a espumar, adicione os outros 50g de açúcar e bata até obter picos firmes e brilhantes.','Incorpore as claras em neve à mistura de chocolate em etapas, usando movimentos envolventes de baixo para cima para manter a aeração.','Leve ao frigorífico por, no mínimo, 6 horas antes de servir.'],
+    historia:'O café expresso e a baunilha em pasta realçam profundamente as notas do chocolate 70%. Uma receita rica e muito aerada.' },
+  { id:'seed-10', nome:'Recheio 4 Leites', de:'Base', epoca:'', categoria:'Outros', tempo:'25 a 30 min', porcoes:'',
+    ingredientes: flattenIngredients({ 'Lista': ['1 lata de leite condensado','1 xícara de leite em pó','1 caixa de creme de leite','1 vidro de leite de coco'] }),
+    modo: ['Misture leite condensado e leite em pó.','Adicione creme de leite e leite de coco.','Cozinhe em fogo baixo mexendo sempre por 25-30 min.','O ponto é quando o fundo da panela aparece lentamente.'],
+    historia:'Base perfeita para diversos bolos e combinações.' },
+  { id:'seed-2', nome:'Nhoque da Vó Rosinha', de:'Vó Rosinha', epoca:'', categoria:'Pratos principais', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({ 'Massa': ['1 kg de batata Asterix (essencial por ser mais seca)','2 ovos','1 colher (sopa) de manteiga','Aproximadamente 1 copo de farinha de trigo'] }),
+    modo: ['Cozinhe as batatas Asterix até ficarem bem macias.','Em um recipiente separado, bata muito bem os 2 ovos antes de misturar (segredo para a massa ficar melhor).','Misture os ovos batidos com a manteiga.','Esprema as batatas ainda mornas sobre a mistura de ovo e manteiga.','Vá adicionando a farinha aos poucos até dar o ponto. A batata Asterix pede menos farinha.','Em uma superfície enfarinhada, faça rolinhos e corte.','Cozinhe em água já fervente e retire assim que subirem.'],
+    historia:'Dica: bater o ovo antes faz toda a diferença. Use batata Asterix para evitar que a massa precise de farinha demais e fique pesada. (Anexe o áudio da receita editando-a pelo app.)' },
+  { id:'seed-3', nome:'Manjar Branco da Vó Rosinha', de:'Vó Rosinha', epoca:'', categoria:'Doces e sobremesas', tempo:'', porcoes:'',
+    ingredientes: flattenIngredients({
+      'Manjar': ['1 litro de leite','1 vidro de leite de coco','Açúcar a gosto','4 colheres (sopa) de maizena'],
+      'Calda': ['Ameixas secas (sem caroço)','Água','Açúcar a gosto']
+    }),
+    modo: ['Misture os ingredientes do manjar frios e leve ao fogo até engrossar.','Despeje em forma umedecida e leve à geladeira até firmar.','Para a calda: ferva as ameixas com água e açúcar até engrossar.','Desenforme o manjar e cubra com a calda fria.'],
+    historia:'Servido com calda de ameixa — exatamente como a Vó Rosinha fazia. (Anexe o áudio da receita editando-a pelo app.)' },
+  { id:'seed-11', nome:'Xarope de Guaco', de:'', epoca:'', categoria:'Remédios caseiros', tempo:'', porcoes:'',
+    ingredientes: [], modo: [], historia:'Anexe o áudio da receita editando-a pelo app, e complete o texto quando puder transcrever.' }
+];
+
+async function runMigrationIfNeeded(){
+  const marker = doc(db, 'meta', 'seedStatus');
+  const markerSnap = await getDoc(marker);
+  if (markerSnap.exists()) return;
+
+  setStatus('Preparando as receitas pela primeira vez, um instante...', false);
+  for (const r of SEED_TEXT_RECIPES){
+    const { id, ...data } = r;
+    await addDoc(recipesCol, { ...data, audio: null, createdAt: serverTimestamp() });
+  }
+  await setDoc(marker, { done: true, at: serverTimestamp() });
+  setStatus('', false);
+}
+
+function startSync(){
+  const q = query(recipesCol, orderBy('createdAt', 'desc'));
+  onSnapshot(q, (snapshot) => {
+    recipes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    setStatus('', false);
+    renderChips();
+    render();
+  }, handleFirestoreError);
+}
+
+function renderChips(){
+  const cats = ['Todas', ...Array.from(new Set(recipes.map(r => r.categoria).filter(Boolean)))];
+  const chips = document.getElementById('chips');
+  chips.innerHTML = cats.map(c =>
+    `<button class="chip ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join('');
+  chips.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', () => {
+      activeCategory = el.dataset.cat;
+      renderChips();
+      render();
+    });
+  });
+}
+
+function render(){
+  const area = document.getElementById('gridArea');
+  const q = document.getElementById('search').value.trim().toLowerCase();
+
+  let filtered = recipes.filter(r => {
+    const matchesCat = activeCategory === 'Todas' || r.categoria === activeCategory;
+    const matchesQ = !q || (r.nome || '').toLowerCase().includes(q) || (r.de || '').toLowerCase().includes(q);
+    return matchesCat && matchesQ;
+  });
+
+  if (recipes.length === 0){
+    area.innerHTML = `
+      <div class="empty">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 19.5V4.5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M4 19.5a2 2 0 0 0 2 2h13"/><line x1="9" y1="6" x2="15" y2="6"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+        <h2>Ainda não há nada por aqui</h2>
+        <p>Comece guardando a primeira receita da família antes que ela se perca.</p>
+      </div>`;
+    return;
+  }
+
+  if (filtered.length === 0){
+    area.innerHTML = `<div class="empty"><h2>Nenhuma receita encontrada</h2><p>Tente outra busca ou categoria.</p></div>`;
+    return;
+  }
+
+  area.innerHTML = `<div class="grid">${filtered.map(r => `
+    <article class="card" data-id="${r.id}">
+      ${r.audio ? `<span class="audio-badge" title="Tem uma gravação de áudio"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>` : ''}
+      <span class="pin" style="background:${catColors[r.categoria] || '#C69A4C'}"></span>
+      <p class="cat">${esc(r.categoria)}</p>
+      <h3>${esc(r.nome)}</h3>
+      <p class="from">${r.de ? 'de ' + esc(r.de) : 'autoria não registrada'}</p>
+      <div class="meta">
+        ${r.tempo ? `<span>⏱ ${esc(r.tempo)}</span>` : ''}
+        ${r.porcoes ? `<span>${esc(r.porcoes)}</span>` : ''}
+      </div>
+    </article>
+  `).join('')}</div>`;
+
+  area.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.id));
+  });
+}
+
+function openDetail(id){
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  const content = document.getElementById('detailContent');
+  content.innerHTML = `
+    <button class="modal-close" id="closeDetail">&times;</button>
+    <div class="detail-header">
+      <p class="detail-cat">${esc(r.categoria)}</p>
+      <h2 class="detail-title">${esc(r.nome)}</h2>
+      <p class="detail-from">${r.de ? 'Passada por ' + esc(r.de) : 'Autoria não registrada'}${r.epoca ? ' · ' + esc(r.epoca) : ''}</p>
+    </div>
+    <div class="detail-meta">
+      ${r.tempo ? `<span>⏱ ${esc(r.tempo)}</span>` : ''}
+      ${r.porcoes ? `<span>🍽 ${esc(r.porcoes)}</span>` : ''}
+    </div>
+    ${r.audio ? `
+      <div class="detail-audio">
+        <p><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Gravação da receita</p>
+        <audio controls src="${r.audio}"></audio>
+      </div>` : ''}
+    ${r.ingredientes && r.ingredientes.length ? `
+      <div class="detail-section">
+        <h4>Ingredientes</h4>
+        <ul>${r.ingredientes.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+      </div>` : ''}
+    ${r.modo && r.modo.length ? `
+      <div class="detail-section">
+        <h4>Modo de preparo</h4>
+        <ol>${r.modo.map(i => `<li>${esc(i)}</li>`).join('')}</ol>
+      </div>` : ''}
+    ${r.audio && (!r.ingredientes || !r.ingredientes.length) && (!r.modo || !r.modo.length) ? `
+      <p style="font-size:13px; color:var(--ink-soft); font-style:italic; margin-top:10px;">
+        Ainda sem texto — por enquanto só a gravação. Edite a receita para completar o texto.
+      </p>` : ''}
+    ${r.historia ? `<div class="story">${esc(r.historia)}</div>` : ''}
+    <div class="detail-actions">
+      <button class="edit-link" id="editRecipe">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        Editar receita
+      </button>
+      <button class="remove-link" id="removeRecipe">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Remover receita
+      </button>
+    </div>
+  `;
+  document.getElementById('detailOverlay').style.display = 'flex';
+  document.getElementById('closeDetail').addEventListener('click', closeDetail);
+  document.getElementById('editRecipe').addEventListener('click', () => {
+    closeDetail();
+    openEdit(id);
+  });
+  document.getElementById('removeRecipe').addEventListener('click', async () => {
+    if (confirm('Tem certeza que quer remover "' + r.nome + '"?')){
+      try {
+        await deleteDoc(doc(db, 'recipes', id));
+        closeDetail();
+      } catch(err){
+        alert('Não foi possível remover agora. Tente novamente em instantes.');
+        console.error(err);
+      }
+    }
+  });
+}
+
+function closeDetail(){
+  document.getElementById('detailOverlay').style.display = 'none';
+  const audio = document.querySelector('#detailContent audio');
+  if (audio) audio.pause();
+}
+
+document.getElementById('detailOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'detailOverlay') closeDetail();
+});
+
+document.getElementById('openAdd').addEventListener('click', () => {
+  editingId = null;
+  editingAudioUrl = null;
+  document.getElementById('recipeForm').reset();
+  document.getElementById('formTitle').textContent = 'Guardar uma nova receita';
+  document.getElementById('formSubtitle').textContent = 'Preencha o quanto souber. O importante é registrar antes que se esqueça.';
+  document.getElementById('formSubmitBtn').textContent = 'Guardar receita';
+  document.getElementById('audioHint').textContent = 'Grave ou envie um arquivo de áudio para acompanhar a receita.';
+  document.getElementById('addOverlay').style.display = 'flex';
+});
+
+function openEdit(id){
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  editingId = id;
+  editingAudioUrl = r.audio || null;
+  document.getElementById('f-nome').value = r.nome || '';
+  document.getElementById('f-de').value = r.de || '';
+  document.getElementById('f-epoca').value = r.epoca || '';
+  document.getElementById('f-categoria').value = r.categoria || 'Doces e sobremesas';
+  document.getElementById('f-tempo').value = r.tempo || '';
+  document.getElementById('f-porcoes').value = r.porcoes || '';
+  document.getElementById('f-ingredientes').value = (r.ingredientes || []).join('\n');
+  document.getElementById('f-modo').value = (r.modo || []).join('\n');
+  document.getElementById('f-historia').value = r.historia || '';
+  document.getElementById('f-audio').value = '';
+  document.getElementById('audioHint').textContent = r.audio
+    ? 'Já existe uma gravação anexada. Selecionar um novo arquivo vai substituí-la.'
+    : 'Grave ou envie um arquivo de áudio para acompanhar a receita.';
+  document.getElementById('formTitle').textContent = 'Editar receita';
+  document.getElementById('formSubtitle').textContent = 'Atualize o que quiser — o resto continua como estava.';
+  document.getElementById('formSubmitBtn').textContent = 'Salvar alterações';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+document.getElementById('closeAdd').addEventListener('click', closeAdd);
+document.getElementById('cancelAdd').addEventListener('click', closeAdd);
+document.getElementById('addOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'addOverlay') closeAdd();
+});
+function closeAdd(){
+  document.getElementById('addOverlay').style.display = 'none';
+  document.getElementById('recipeForm').reset();
+  editingId = null;
+  editingAudioUrl = null;
+}
+
+document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const submitBtn = document.getElementById('formSubmitBtn');
+  const originalLabel = submitBtn.textContent;
+  const formData = {
+    nome: document.getElementById('f-nome').value.trim(),
+    de: document.getElementById('f-de').value.trim(),
+    epoca: document.getElementById('f-epoca').value.trim(),
+    categoria: document.getElementById('f-categoria').value,
+    tempo: document.getElementById('f-tempo').value.trim(),
+    porcoes: document.getElementById('f-porcoes').value.trim(),
+    ingredientes: linesToArray(document.getElementById('f-ingredientes').value),
+    modo: linesToArray(document.getElementById('f-modo').value),
+    historia: document.getElementById('f-historia').value.trim()
+  };
+  if (!formData.nome) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Salvando...';
+
+  try {
+    let audioUrl = editingAudioUrl;
+    const fileInput = document.getElementById('f-audio');
+    if (fileInput.files && fileInput.files[0]){
+      submitBtn.textContent = 'Enviando áudio...';
+      const file = fileInput.files[0];
+      const path = `audios/${Date.now()}-${file.name}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      audioUrl = await getDownloadURL(storageRef);
+    }
+    formData.audio = audioUrl || null;
+
+    if (editingId){
+      await updateDoc(doc(db, 'recipes', editingId), formData);
+    } else {
+      formData.createdAt = serverTimestamp();
+      await addDoc(recipesCol, formData);
+    }
+    closeAdd();
+  } catch(err){
+    alert('Não foi possível salvar agora. Verifique sua conexão ou as regras do Firebase.');
+    console.error(err);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+
+document.getElementById('search').addEventListener('input', render);
+
+/* ---------- Login gate ---------- */
+document.getElementById('googleSignIn').addEventListener('click', async () => {
+  document.getElementById('loginMessage').textContent = 'Entre com sua conta Google para ver e guardar as receitas da família.';
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch(err){
+    console.error(err);
+    document.getElementById('loginMessage').textContent = 'Não foi possível entrar. Tente novamente.';
+  }
+});
+
+document.getElementById('signOutBtn').addEventListener('click', () => signOut(auth));
+
+function showLogin(message){
+  syncStarted = false;
+  document.getElementById('appRoot').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  if (message) document.getElementById('loginMessage').textContent = message;
+}
+
+function handleFirestoreError(err){
+  console.error(err);
+  if (err && err.code === 'permission-denied'){
+    showLogin('Essa conta não está liberada para acessar as receitas da família. Peça para adicionar seu e-mail à lista, ou entre com outra conta.');
+  } else {
+    setStatus('Não foi possível conectar ao banco de dados. Tente novamente em instantes.', true);
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email || '';
+    if (!syncStarted){
+      syncStarted = true;
+      setStatus('Conectando ao banco de dados...', false);
+      (async () => {
+        try {
+          await runMigrationIfNeeded();
+          startSync();
+        } catch(err){
+          handleFirestoreError(err);
+        }
+      })();
+    }
+  } else {
+    showLogin('Entre com sua conta Google para ver e guardar as receitas da família.');
+  }
+});
+</script>
+</body>
+</html>
